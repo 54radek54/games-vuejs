@@ -10,25 +10,41 @@
         not overlap each other. No ships may be placed on another ship.
         <br>The 5 ships are: Carrier (occupies 5 spaces), Battleship (4), Cruiser (3), Submarine (3), and Destroyer (2).</h2>
       <div class="game-container">
+        <!--        placing the ships-->
+          <form name="placeShip">
+            <label>Direction of ship: </label><br>
+            <input type="radio" name="direction" id="vertical" @click="direction='vertical'"  checked>Vertical (up)<br>
+            <input type="radio" name="direction" id="horizontal" @click="direction='horizontal'">Horizontal (right)<br><br>
+
+            <label>Type of ship: </label><br>
+            <input type="radio" name="shipType" id="carrier"  @click="size='5'" checked>Carrier (Size: 5)<br>
+            <input type="radio" name="shipType" id="battleship" @click="size='4'" >Battleship (Size: 4)<br>
+            <input type="radio" name="shipType" id="cruiser" @click="size='3'" >Cruiser (Size: 3)<br>
+            <input type="radio" name="shipType" id="submarine" @click="size='3'" >Submarine (Size: 3)<br>
+            <input type="radio" name="shipType" id="destroyer" @click="size='2'" >Destroyer (Size: 2)<br>
+            <br>
+              <button class="game-button" v-on:click="start" v-text="'Start the Game'"></button><br>
+              <button class="game-button" v-on:click="random" v-text="'Place Randomly'"></button>
+          </form>
+
         <!--        user board-->
         <div class="board-container">
-          <div v-for="boardRow in 10" :key="boardRow">
             <div v-for="boardColumn in 10" :key="boardColumn">
+              <div v-for="boardRow in 10" :key="boardRow">
               <div class="box hit" v-if="userBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='x'">X</div>
               <div class="box miss" v-else-if="userBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='o'">.</div>
               <div class="box ship" v-else-if="userBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='s'"></div>
-              <div class="box water" v-else></div>
+              <div class="box water" v-else v-on:click="place(boardRow-1,boardColumn-1,direction,size)"></div>
             </div>
           </div>
-
         </div>
         <!--        computer board-->
         <div class="board-container">
-          <div v-for="boardRow in 10" :key="boardRow">
             <div v-for="boardColumn in 10" :key="boardColumn">
+              <div v-for="boardRow in 10" :key="boardRow">
               <div class="box hit" v-if="computerBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='x'">X</div>
               <div class="box miss" v-else-if="computerBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='o'">.</div>
-<!--              <div class="box ship" v-else-if="computerBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='s'"></div>-->
+              <div class="box ship" v-else-if="computerBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='s'"></div>
               <div class="box water" v-else v-on:click="fire(boardRow-1,boardColumn-1)"></div>
             </div>
           </div>
@@ -36,8 +52,9 @@
 
       </div>
       <h2 class="game-status">{{ msg }}</h2>
-      <button class="game-button" v-on:click="startNewGame" v-text="'New Game'"></button>
-      <button class="game-button" v-on:click="random" v-text="'Random'"></button>
+      <button class="game-button" v-on:click="newGame" v-text="'New Game'"></button>
+
+
     </section>
   </div>
 
@@ -50,9 +67,17 @@ export default {
   name: "Battleship", methods: {
     fire: function (moveRow, moveColumn) {
       axios.post(`http://localhost:3000/api/move/${moveRow}/${moveColumn}`).then(this.afterMove).catch(this.afterMove)
+   },
+    place: function (placeRow, placeColumn, placeDirection, placeSize) {
+      axios.post(`http://localhost:3000/api/palce/${placeRow}/${placeColumn}/${placeDirection}/${placeSize}`).then(response=>console.log(placeRow+" "+placeColumn+" "+placeDirection+" "+placeSize,response)).then(this.afterMove).catch(this.afterMove)
     },
-    startNewGame() {
+    newGame() {
       axios.get("http://localhost:3000/api/new").then(this.afterMove).catch(this.afterMove).catch((error) => {
+        console.log("New game cant be started right now", error)
+      })
+    },
+    start() {
+      axios.get("http://localhost:3000/api/start").then(this.afterMove).catch(this.afterMove).catch((error) => {
         console.log("Game cant be started right now", error)
       })
     },
@@ -85,7 +110,9 @@ export default {
     return {
       userBoard: '',
       computerBoard: '',
-      msg: ""
+      msg: "",
+      direction: 'vertical',
+      size:'5'
     }
   }
 }
@@ -108,8 +135,8 @@ section {
 
 .game-container {
   display: grid;
-  grid-template-columns: repeat(2, auto);
-  width: 800px;
+  grid-template-columns: repeat(3, auto);
+  width: 1000px;
   margin: 10px auto;
 }
 
@@ -175,4 +202,5 @@ section {
   font-size: .9rem;
   width: 800px;
 }
+
 </style>
