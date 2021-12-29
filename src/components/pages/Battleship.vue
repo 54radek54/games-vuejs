@@ -2,49 +2,49 @@
   <div class="body">
     <section>
       <h1 class="game-title">Welcome to Battleships!</h1>
-      <h2 class="rules">The object of Battleship is to try and sink all of the other player's before they sink all of your
+      <h2 class="rules">The object of Battleship is to try and sink all of the other player's before they sink all of
+        your
         ships. All of the other player's ships are somewhere on his/her board. You try and hit them by calling out the
         coordinates of one of the squares on the board. The other player also tries to hit your ships by calling out
         coordinates. Each player places the 5 ships somewhere on their board. The ships can only be placed vertically or
         horizontally. Diagonal placement is not allowed. No part of a ship may hang off the edge of the board. Ships may
         not overlap each other. No ships may be placed on another ship.
-        <br>The 5 ships are: Carrier (occupies 5 spaces), Battleship (4), Cruiser (3), Submarine (3), and Destroyer (2).</h2>
+        <br>The 5 ships are: Carrier (occupies 5 spaces), Battleship (4), Cruiser (3), Submarine (3), and Destroyer (2).
+      </h2>
       <div class="game-container">
         <!--        placing the ships-->
-          <form name="placeShip">
-            <label>Direction of ship: </label><br>
-            <input type="radio" name="direction" id="vertical" @click="direction='vertical'"  checked>Vertical (up)<br>
-            <input type="radio" name="direction" id="horizontal" @click="direction='horizontal'">Horizontal (right)<br><br>
+        <form  name="placeShip" v-show="placement==='placeTheShips'">
+          <label>Direction of ship:</label><br>
+          <input type="radio" name="direction" id="vertical" @click="direction='vertical'" checked>Vertical (down)<br>
+          <input type="radio" name="direction" id="horizontal" @click="direction='horizontal'">Horizontal
+          (right)<br><br>
 
-            <label>Type of ship: </label><br>
-            <input type="radio" name="shipType" id="carrier"  @click="size='5'" checked>Carrier (Size: 5)<br>
-            <input type="radio" name="shipType" id="battleship" @click="size='4'" >Battleship (Size: 4)<br>
-            <input type="radio" name="shipType" id="cruiser" @click="size='3'" >Cruiser (Size: 3)<br>
-            <input type="radio" name="shipType" id="submarine" @click="size='3'" >Submarine (Size: 3)<br>
-            <input type="radio" name="shipType" id="destroyer" @click="size='2'" >Destroyer (Size: 2)<br>
-            <br>
-              <button class="game-button" v-on:click="start" v-text="'Start the Game'"></button><br>
-              <button class="game-button" v-on:click="random" v-text="'Place Randomly'"></button>
-          </form>
+          <label>Type of ship: </label><br>
+          <input type="radio" name="shipType" id="carrier"  @click="ship='carrier'" checked>Carrier (Size: 5)<br>
+          <input type="radio" name="shipType" id="battleship" @click="ship='battleship'">Battleship (Size: 4)<br>
+          <input type="radio" name="shipType" id="cruiser" @click="ship='cruiser'">Cruiser (Size: 3)<br>
+          <input type="radio" name="shipType" id="submarine" @click="ship='submarine'">Submarine (Size: 3)<br>
+          <input type="radio" name="shipType" id="destroyer" @click="ship='destroyer'">Destroyer (Size: 2)<br>
+        </form>
 
         <!--        user board-->
         <div class="board-container">
-            <div v-for="boardColumn in 10" :key="boardColumn">
-              <div v-for="boardRow in 10" :key="boardRow">
+          <div v-for="boardColumn in 10" :key="boardColumn">
+            <div v-for="boardRow in 10" :key="boardRow">
               <div class="box hit" v-if="userBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='x'">X</div>
               <div class="box miss" v-else-if="userBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='o'">.</div>
               <div class="box ship" v-else-if="userBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='s'"></div>
-              <div class="box water" v-else v-on:click="place(boardRow-1,boardColumn-1,direction,size)"></div>
+              <div class="box water" v-else v-on:click="place(boardRow-1,boardColumn-1,direction,ship)"></div>
             </div>
           </div>
         </div>
         <!--        computer board-->
         <div class="board-container">
-            <div v-for="boardColumn in 10" :key="boardColumn">
-              <div v-for="boardRow in 10" :key="boardRow">
+          <div v-for="boardColumn in 10" :key="boardColumn">
+            <div v-for="boardRow in 10" :key="boardRow">
               <div class="box hit" v-if="computerBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='x'">X</div>
               <div class="box miss" v-else-if="computerBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='o'">.</div>
-              <div class="box ship" v-else-if="computerBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='s'"></div>
+<!--              <div class="box ship" v-else-if="computerBoard.charAt(((boardColumn-1)+10*(boardRow-1))) ==='s'"></div>-->
               <div class="box water" v-else v-on:click="fire(boardRow-1,boardColumn-1)"></div>
             </div>
           </div>
@@ -52,8 +52,10 @@
 
       </div>
       <h2 class="game-status">{{ msg }}</h2>
-      <button class="game-button" v-on:click="newGame" v-text="'New Game'"></button>
-
+      <button class="game-button" @click="placement='placeTheShips'" v-on:click="newGame" v-text="'New Game'"></button>
+      <button class="game-button" v-show="placement==='placeTheShips'" @click="placement='placed'" v-on:click="random" v-text="'Place Randomly'"></button>
+      <button class="game-button" v-show="placement==='placeTheShips'" @click="placement='placed'" v-on:click="random" v-text="'Ships placed'"></button>
+      <button class="game-button" v-show="placement==='placed'" @click="placement='gameStarted'" v-on:click="start" v-text="'Start the Game'"></button>
 
     </section>
   </div>
@@ -67,9 +69,9 @@ export default {
   name: "Battleship", methods: {
     fire: function (moveRow, moveColumn) {
       axios.post(`http://localhost:3000/api/move/${moveRow}/${moveColumn}`).then(this.afterMove).catch(this.afterMove)
-   },
-    place: function (placeRow, placeColumn, placeDirection, placeSize) {
-      axios.post(`http://localhost:3000/api/palce/${placeRow}/${placeColumn}/${placeDirection}/${placeSize}`).then(response=>console.log(placeRow+" "+placeColumn+" "+placeDirection+" "+placeSize,response)).then(this.afterMove).catch(this.afterMove)
+    },
+    place: function (placeRow, placeColumn, placeDirection, placeShip) {
+      axios.post(`http://localhost:3000/api/place/${placeRow}/${placeColumn}/${placeDirection}/${placeShip}`).then(this.afterMove).catch(this.afterMove)
     },
     newGame() {
       axios.get("http://localhost:3000/api/new").then(this.afterMove).catch(this.afterMove).catch((error) => {
@@ -87,9 +89,7 @@ export default {
       })
     },
     random() {
-      axios.get("http://localhost:3000/api/random").then(this.afterMove).catch(this.afterMove).catch((error) => {
-        console.log("Something went wrong!", error)
-      })
+      axios.get("http://localhost:3000/api/random").then(this.afterMove).catch(this.afterMove)
     },
     userBoardAxios() {
       axios.get("http://localhost:3000/api/userboard").then(response => {
@@ -112,7 +112,8 @@ export default {
       computerBoard: '',
       msg: "",
       direction: 'vertical',
-      size:'5'
+      ship: 'carrier',
+      placement:''
     }
   }
 }
@@ -136,7 +137,7 @@ section {
 .game-container {
   display: grid;
   grid-template-columns: repeat(3, auto);
-  width: 1000px;
+  width: 900px;
   margin: 10px auto;
 }
 
@@ -152,16 +153,16 @@ section {
   background-color: rgb(153, 77, 0);
 }
 
-.water{
+.water {
   background-color: rgb(0, 204, 255);
 }
 
-.hit{
+.hit {
   background-color: rgb(255, 0, 0);
   line-height: 30px;
 }
 
-.miss{
+.miss {
   background-color: rgb(128, 128, 128, 0.8);
   line-height: 15px;
 }
@@ -203,4 +204,14 @@ section {
   width: 800px;
 }
 
+form{
+  width: 170px;
+  margin: 10px auto;
+  background-color: rgb(0, 204, 255);
+  border: 3px solid #ecd7ba;
+  cursor: pointer;
+  font-size: 15px;
+  font-family: "Permanent Marker", cursive;
+  text-align: left;
+}
 </style>
