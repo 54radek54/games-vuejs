@@ -68,36 +68,36 @@ import axios from 'axios'
 export default {
   name: "Battleship", methods: {
     fire: function (moveRow, moveColumn) {
-      axios.post(`http://localhost:3000/api/move/${moveRow}/${moveColumn}`).then(this.afterMove).catch(this.afterMove)
+      axios.post(`http://localhost:3000/api/battleship/move/${moveRow}/${moveColumn}`).then(this.afterMove).catch(this.afterMove)
     },
     place: function (placeRow, placeColumn, placeDirection, placeShip) {
-      axios.post(`http://localhost:3000/api/place/${placeRow}/${placeColumn}/${placeDirection}/${placeShip}`).then(this.afterMove).catch(this.afterMove)
+      axios.post(`http://localhost:3000/api/battleship/place/${placeRow}/${placeColumn}/${placeDirection}/${placeShip}`).then(this.afterMove).catch(this.afterMove)
     },
     newGame() {
-      axios.get("http://localhost:3000/api/new").then(this.afterMove).catch(this.afterMove).catch((error) => {
+      axios.get("http://localhost:3000/api/battleship/new").then(this.afterMove).catch(this.afterMove).catch((error) => {
         console.log("New game cant be started right now", error)
       })
     },
     start() {
-      axios.get("http://localhost:3000/api/start").then(this.afterMove).catch(this.afterMove).catch((error) => {
+      axios.get("http://localhost:3000/api/battleship/start").then(this.afterMove).catch(this.afterMove).catch((error) => {
         console.log("Game cant be started right now", error)
       })
     },
     gameState() {
-      axios.get("http://localhost:3000/api/state").then(response => {
+      axios.get("http://localhost:3000/api/battleship/state").then(response => {
         this.msg = response.data;
       })
     },
     random() {
-      axios.get("http://localhost:3000/api/random").then(this.afterMove).catch(this.afterMove)
+      axios.get("http://localhost:3000/api/battleship/random").then(this.afterMove).catch(this.afterMove)
     },
     userBoardAxios() {
-      axios.get("http://localhost:3000/api/userboard").then(response => {
+      axios.get("http://localhost:3000/api/battleship/userboard").then(response => {
         this.userBoard = response.data;
       })
     },
     computerBoardAxios() {
-      axios.get("http://localhost:3000/api/computerboard").then(response => {
+      axios.get("http://localhost:3000/api/battleship/computerboard").then(response => {
         this.computerBoard = response.data;
       })
     },

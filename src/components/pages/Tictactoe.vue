@@ -44,20 +44,20 @@ export default {
   name: 'Game',
   methods: {
     move: function (moveRow, moveColumn, moveMark) {
-      axios.post(`http://localhost:3000/api/move/${moveRow}/${moveColumn}/${moveMark}`).then(this.afterMove).catch(this.afterMove)
+      axios.post(`http://localhost:3000/api/ttc/move/${moveRow}/${moveColumn}/${moveMark}`).then(this.afterMove).catch(this.afterMove)
     },
     start() {
-      axios.get("http://localhost:3000/api/start").then(this.afterMove).catch((error) => {
+      axios.get("http://localhost:3000/api/ttc/start").then(this.afterMove).catch((error) => {
         console.log("Game cant be started right now", error)
       })
     },
     gameState() {
-      axios.get("http://localhost:3000/api/state").then(response => {
+      axios.get("http://localhost:3000/api/ttc/state").then(response => {
         this.msg = response.data;
       })
     },
     getBoard() {
-      axios.get("http://localhost:3000/api/board").then(response => {
+      axios.get("http://localhost:3000/api/ttc/board").then(response => {
         this.board = response.data;
       })
     },
@@ -73,11 +73,11 @@ export default {
     }
   }, mounted() {
     //data stays after refresh on board
-    fetch("http://localhost:3000/api/state").then((response) => response.text()).then((data) => {
+    fetch("http://localhost:3000/api/ttc/state").then((response) => response.text()).then((data) => {
       this.msg = data;
     })
 
-    fetch("http://localhost:3000/api/board").then((response) => response.text()).then((data) => {
+    fetch("http://localhost:3000/api/ttc/board").then((response) => response.text()).then((data) => {
       this.board = data;
     })
   }
